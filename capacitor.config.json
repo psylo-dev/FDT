@@ -1,0 +1,15 @@
+{
+  "appId": "com.example.ticketapp",
+  "appName": "FDTicket",
+  "webDir": "public",
+  "bundledWebRuntime": true,
+  "server": {
+    "url": "http://localhost",
+    "cleartext": true
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

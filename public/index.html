@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein Ticket</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="service-worker" content="/service-worker.js">
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header Bar -->
+        <div class="header-bar">
+            <span class="header-title">Mein Ticket</span>
+        </div>
+        <!-- Scrollable Content -->
+        <div class="scroll-container">
+            <div class="content-container">
+                <!-- Logo Section -->
+                <div class="logo-container">
+                    <img id="animated-d-ticket-logo" src="assets/d_ticket_logo.png" alt="D Ticket Logo">
+                </div>
+                <!-- QR Code Section -->
+                <div id="qr-code-container">
+                    <div id="qrcode"></div>
+                </div>
+                <!-- Partner Logos -->
+                <div class="partner-logos">
+                    <img src="assets/transdev_logo.png" alt="Transdev Logo">
+                    <img src="assets/d_ticket_logo.png" alt="D Ticket Logo">
+                </div>
+                <!-- Connection Details -->
+                <h2>Verbindungsdetails</h2>
+                <div class="info-section">
+                    <span class="label">Ausgegeben am:</span>
+                    <span id="text-issued-date">01.07.2025 02:00</span>
+                    <div class="validity-container">
+                        <div>
+                            <span class="label">Gültig von:</span>
+                            <span id="text-valid-from">01.07.2025 00:00</span>
+                        </div>
+                        <div class="align-right">
+                            <span class="label">Gültig bis:</span>
+                            <span id="text-valid-until">01.08.2025 03:00</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Price Section -->
+                <h2>Preis</h2>
+                <div class="info-section">
+                    <span id="text-price">58,00 €</span>
+                </div>
+                <!-- Personal Data Section -->
+                <h2>Personendaten</h2>
+                <div class="info-section">
+                    <span class="label">Name:</span>
+                    <span id="text-name">MAX MUSTERMANN</span>
+                    <span class="label">Geburtstag:</span>
+                    <span id="text-birthday">19.05.1993</span>
+                </div>
+                <!-- Ticket Code Section -->
+                <div class="info-section">
+                    <span class="label">Ticketcode:</span>
+                    <span id="text-ticket-code">DT9Y2Ynw</span>
+                </div>
+                <!-- Disclaimer -->
+                <div class="info-section">
+                    <span id="text-disclaimer">Nur gültig mit amtlichem Lichtbildausweis (z.B. Personalausweis). <br>Dieser ist bei der Kontrolle vorzuzeigen. <br>Es gelten die AGB der jeweiligen Beförderer. <br><a href="https://diebefoerderer.de/">https://diebefoerderer.de/</a></span>
+                </div>
+            </div>
+        </div>
+        <!-- Navigation Placeholder (Empty) -->
+        <div class="nav-placeholder"></div>
+        <!-- Settings Popup -->
+        <div id="settings-popup" class="popup">
+            <div class="popup-content">
+                <div class="header-bar">
+                    <span class="header-title">Einstellungen</span>
+                    <button class="close-button" onclick="closeSettingsPopup()">✕</button>
+                </div>
+                <div class="scroll-container">
+                    <div class="content-container">
+                        <!-- Personal Data Section -->
+                        <h2>Personendaten</h2>
+                        <div class="info-section">
+                            <span class="label">Name:</span>
+                            <input id="edit-name" type="text">
+                            <span class="label">Geburtstag:</span>
+                            <input id="edit-birthday" type="text">
+                        </div>
+                        <!-- Ticket Code Section -->
+                        <h2>Ticketcode</h2>
+                        <div class="info-section">
+                            <span class="label">Ticketcode:</span>
+                            <input id="edit-ticket-code" type="text">
+                        </div>
+                        <!-- Price Section -->
+                        <h2>Preis</h2>
+                        <div class="info-section">
+                            <span class="label">Preis:</span>
+                            <input id="edit-price" type="text">
+                        </div>
+                        <!-- Validity Section -->
+                        <h2>Verbindungsdetails</h2>
+                        <div class="info-section">
+                            <span class="label">Ausgegeben am:</span>
+                            <input id="edit-issued-date" type="text">
+                            <div class="validity-container">
+                                <div>
+                                    <span class="label">Gültig von:</span>
+                                    <input id="edit-valid-from" type="text">
+                                </div>
+                                <div class="align-right">
+                                    <span class="label">Gültig bis:</span>
+                                    <input id="edit-valid-until" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Save Button -->
+                        <div class="info-section">
+                            <button id="save-button" onclick="saveValues()">Speichern</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Explanation Popup -->
+        <div id="explanation-popup" class="popup">
+            <div class="popup-content">
+                <div class="header-bar">
+                    <span class="header-title">Willkommen</span>
+                </div>
+                <div class="content-container">
+                    <p>Um die Einstellungen zu öffnen, halten Sie den QR-Code für 1 Sekunde gedrückt.</p>
+                    <div class="info-section">
+                        <button id="confirm-button" onclick="confirmExplanation()">Verstanden</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Toast Notification -->
+        <div id="toast" class="toast">Änderungen gespeichert</div>
+    </div>
+    <script src="lib/qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

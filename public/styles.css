@@ -1,0 +1,232 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1C2526;
+    color: #FFFFFF;
+    user-select: none; /* Prevents text selection during long-press */
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.header-bar {
+    background-color: #2E393A;
+    height: 56px; /* Approximate ?attr/actionBarSize */
+    display: flex;
+    align-items: center;
+    padding: 0 16px 0 12px;
+}
+
+.header-title {
+    flex: 1;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+.scroll-container {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.content-container {
+    padding: 16px;
+}
+
+.logo-container {
+    background-color: #2E393A;
+    padding: 16px;
+    margin-bottom: 16px;
+    text-align: start;
+}
+
+#animated-d-ticket-logo {
+    max-height: 75px;
+    max-width: 150px;
+    object-fit: contain;
+}
+
+#qr-code-container {
+    height: 350px;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 16px;
+    cursor: pointer; /* Indicate interactivity */
+}
+
+#qrcode {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#qrcode img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.partner-logos {
+    background-color: #2E393A;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.partner-logos img {
+    max-height: 50px;
+    max-width: 100px;
+    margin-right: 16px;
+    object-fit: contain;
+}
+
+.partner-logos img:last-child {
+    margin-right: 0;
+}
+
+h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.info-section {
+    background-color: #2E393A;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.label {
+    font-size: 14px;
+    color: #B0B0B0;
+    display: block;
+}
+
+.info-section span:not(.label), .info-section input {
+    font-size: 16px;
+    color: #FFFFFF;
+    margin-bottom: 12px;
+}
+
+.validity-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.align-right {
+    text-align: right;
+}
+
+#text-disclaimer {
+    font-size: 11px;
+    color: #B0B0B0;
+}
+
+#text-disclaimer a {
+    color: #1E90FF;
+    text-decoration: underline;
+}
+
+input {
+    background: none;
+    border: none;
+    border-bottom: 1px solid #FFFFFF;
+    color: #FFFFFF;
+    width: 100%;
+    padding: 8px 0;
+    margin-bottom: 12px;
+}
+
+input::placeholder {
+    color: #B0B0B0;
+}
+
+#save-button, #confirm-button {
+    background-color: #4CAF50;
+    color: #FFFFFF;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.nav-placeholder {
+    height: 56px; /* Match Android's FrameLayout placeholder */
+}
+
+/* Popup Styles */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: #1C2526;
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.popup-content .scroll-container {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 16px;
+}
+
+/* Explanation Popup Specific Styles */
+#explanation-popup .popup-content {
+    max-width: 400px;
+}
+
+#explanation-popup p {
+    font-size: 16px;
+    color: #FFFFFF;
+    padding: 16px;
+    margin: 0;
+}
+
+/* Toast Styles */
+.toast {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #FFFFFF;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 16px;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.toast.show {
+    display: block;
+    opacity: 1;
+}
