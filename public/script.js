@@ -232,15 +232,18 @@ function initTicketPage() {
     // Logo animation
     const logo = document.getElementById('animated-d-ticket-logo');
     if (logo) {
+        const container = logo.parentElement; // Der logo-container
+        const maxTranslate = container ? Math.max(20, container.offsetWidth - logo.offsetWidth - 32) : 100; // 32px Puffer für Padding (16px pro Seite), mindestens 20px
+
         logo.style.transform = 'translateX(0px)';
         logo.animate([
             { transform: 'translateX(0px)' },
-            { transform: 'translateX(200px)' },
+            { transform: `translateX(${maxTranslate}px)` }, // Dynamische maximale Verschiebung
             { transform: 'translateX(0px)' }
         ], {
             duration: 3000,
             iterations: Infinity,
-            easing: 'linear'
+            easing: 'ease-in-out' // Sanftere Animation
         });
     }
 
