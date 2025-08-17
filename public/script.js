@@ -218,6 +218,34 @@ function updateQRCode() {
     }
 }
 
+// Toggle fullscreen mode
+function toggleFullscreen() {
+    const mainContainer = document.documentElement; // Use documentElement to request fullscreen for the entire page
+    if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+        if (mainContainer.requestFullscreen) {
+            mainContainer.requestFullscreen();
+        } else if (mainContainer.webkitRequestFullscreen) { // Safari
+            mainContainer.webkitRequestFullscreen();
+        } else if (mainContainer.mozRequestFullScreen) { // Firefox
+            mainContainer.mozRequestFullScreen();
+        } else if (mainContainer.msRequestFullscreen) { // IE/Edge
+            mainContainer.msRequestFullscreen();
+        } else {
+            showToast('Vollbildmodus wird von diesem Browser nicht unterstützt');
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+}
+
 // Initialize ticket page
 function initTicketPage() {
     // Initialize default cookies and check for first load
@@ -281,6 +309,12 @@ function initTicketPage() {
         });
         qrCodeContainer.addEventListener('touchend', endPress);
         qrCodeContainer.addEventListener('touchcancel', endPress);
+    }
+
+    // Click event for header-title to toggle fullscreen
+    const headerTitle = document.querySelector('.header-title');
+    if (headerTitle) {
+        headerTitle.addEventListener('click', toggleFullscreen);
     }
 
     // Update QR code
