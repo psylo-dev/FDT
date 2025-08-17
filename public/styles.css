@@ -42,12 +42,15 @@ body {
     padding: 16px;
     margin-bottom: 16px;
     text-align: start;
+    overflow: hidden; /* Verhindert, dass das Logo den Container verlässt */
+    position: relative; /* Stellt sicher, dass das Logo relativ zum Container positioniert wird */
 }
 
 #animated-d-ticket-logo {
     max-height: 75px;
     max-width: 150px;
     object-fit: contain;
+    display: block; /* Verhindert unerwünschte Inline-Margen */
 }
 
 #qr-code-container {
