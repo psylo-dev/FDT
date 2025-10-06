@@ -312,6 +312,39 @@ function initTicketPage() {
 }
 
 // ================================
+// Theme Handling
+// ================================
+function applyTheme(theme) {
+    document.body.className = ''; // reset
+    if (theme && theme !== 'default') {
+        document.body.classList.add(theme);
+    }
+    setCookie('selected_theme', theme);
+}
+
+function loadTheme() {
+    const savedTheme = getCookie('selected_theme') || 'default';
+    applyTheme(savedTheme);
+
+    // Dropdown aktualisieren (falls im DOM vorhanden)
+    const select = document.getElementById('theme-select');
+    if (select) select.value = savedTheme;
+}
+
+// Beim Laden aktivieren
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDefaultCookies();
+    loadTheme();
+
+    const select = document.getElementById('theme-select');
+    if (select) {
+        select.addEventListener('change', (e) => {
+            applyTheme(e.target.value);
+        });
+    }
+});
+
+// ================================
 // Start on Load
 // ================================
 document.addEventListener('DOMContentLoaded', initTicketPage);
