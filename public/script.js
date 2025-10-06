@@ -1,41 +1,43 @@
-// At the top of script.js
+// ================================
+// Service Worker Registration
+// ================================
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
         .then(reg => console.log('Service Worker registered', reg))
         .catch(err => console.error('Service Worker registration failed', err));
 }
 
-// String resources from strings.xml
+// ================================
+// String Resources (keine externe strings.xml nötig)
+// ================================
 const strings = {
     app_name: "FDTicket",
     ticket_title: "Mein Ticket",
     settings_title: "Einstellungen",
     connection_details: "Verbindungsdetails",
     issued_label: "Ausgegeben am:",
-    issued_date: "01.07.2025 02:00",
     valid_from_label: "Gültig von:",
-    valid_from_date: "01.07.2025 00:00",
     valid_until_label: "Gültig bis:",
-    valid_until_date: "01.08.2025 03:00",
     price_label: "Preis",
-    price_value: "58,00 €",
     personal_data_label: "Personendaten",
     name_label: "Name:",
-    name_value: "MAX MUSTERMANN",
     birthday_label: "Geburtstag:",
-    birthday_value: "19.05.1993",
     ticket_code_label: "Ticketcode:",
-    ticket_code_value: "DT9Y2Ynw",
     disclaimer: "Nur gültig mit amtlichem Lichtbildausweis (z.B. Personalausweis). <br>Dieser ist bei der Kontrolle vorzuzeigen. <br>Es gelten die AGB der jeweiligen Beförderer. <br><a href=\"https://diebefoerderer.de/\">https://diebefoerderer.de/</a>",
-    save_button: "Speichern"
+    save_button: "Speichern",
+    price_value: "58,00 €",
+    name_value: "MAX MUSTERMANN",
+    birthday_value: "19.05.1993",
+    ticket_code_value: "DT9Y2Ynw"
 };
 
-// Cookie utility functions
+// ================================
+// Cookie Utilities
+// ================================
 function setCookie(name, value, days = 365) {
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    const expires = "expires=" + date.toUTCString();
-    document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${date.toUTCString()};path=/`;
 }
 
 function getCookie(name) {
@@ -48,32 +50,64 @@ function getCookie(name) {
     return null;
 }
 
-// Initialize default cookies
+// ================================
+// Default Cookie Initialization with Auto Monthly Update
+// ================================
 function initializeDefaultCookies() {
-    const fields = [
-        'issued_date',
-        'valid_from_date',
-        'valid_until_date',
-        'price_value',
-        'name_value',
-        'birthday_value',
-        'ticket_code_value',
-        'disclaimer'
-    ];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    const firstOfThisMonth = new Date(currentYear, currentMonth, 1, 0, 0);
+    const nextMonth = (currentMonth + 1) % 12;
+    const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+    const firstOfNextMonth = new Date(nextYear, nextMonth, 1, 0, 0);
 
-    let isFirstLoad = !getCookie('initialized'); // Check if first load
-    fields.forEach(field => {
-        if (!getCookie(field) && strings[field]) {
-            setCookie(field, strings[field]);
+    // Datum formatieren
+    const formatDate = (date, hour = 0, minute = 0) => {
+        const d = String(date.getDate()).padStart(2, '0');
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const y = date.getFullYear();
+        const hh = String(hour).padStart(2, '0');
+        const mm = String(minute).padStart(2, '0');
+        return `${d}.${m}.${y} ${hh}:${mm}`;
+    };
+
+    // Automatische Monatsdaten
+    const issuedDate = formatDate(firstOfThisMonth, 2, 0);     // 01.MM.YYYY 02:00
+    const validFromDate = formatDate(firstOfThisMonth, 0, 0);  // 01.MM.YYYY 00:00
+    const validUntilDate = formatDate(firstOfNextMonth, 3, 0); // 01.(nächster) 03:00
+
+    // Prüfen, ob bereits für diesen Monat gesetzt
+    const storedMonth = getCookie('current_month');
+    const thisMonth = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+
+    const fields = {
+        'issued_date': issuedDate,
+        'valid_from_date': validFromDate,
+        'valid_until_date': validUntilDate,
+        'price_value': strings.price_value,
+        'name_value': strings.name_value,
+        'birthday_value': strings.birthday_value,
+        'ticket_code_value': strings.ticket_code_value,
+        'disclaimer': strings.disclaimer
+    };
+
+    // Nur bei Monatswechsel oder erstmaligem Laden aktualisieren
+    if (storedMonth !== thisMonth) {
+        for (const key in fields) {
+            setCookie(key, fields[key]);
         }
-    });
-    if (isFirstLoad) {
-        setCookie('initialized', 'true'); // Mark as initialized
+        setCookie('current_month', thisMonth);
+        setCookie('initialized', 'true');
+        return true; // First load this month
     }
-    return isFirstLoad;
+
+    return false;
 }
 
-// Update text views with values from cookies or defaults
+// ================================
+// UI Update Functions
+// ================================
 function updateTextViews() {
     const fields = [
         { id: 'text-issued-date', key: 'issued_date' },
@@ -100,7 +134,9 @@ function updateTextViews() {
     }
 }
 
-// Load saved values for settings popup
+// ================================
+// Settings Popup Functions
+// ================================
 function loadSavedValues() {
     const fields = [
         { id: 'edit-name', key: 'name_value' },
@@ -114,26 +150,19 @@ function loadSavedValues() {
 
     fields.forEach(({ id, key }) => {
         const element = document.getElementById(id);
-        if (element) {
-            const value = getCookie(key) || strings[key] || '';
-            element.value = value; // Set input value directly
-        }
+        if (element) element.value = getCookie(key) || strings[key] || '';
     });
 }
 
-// Show toast notification
 function showToast(message) {
     const toast = document.getElementById('toast');
     if (toast) {
         toast.textContent = message;
         toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 2000); // Show for 2 seconds
+        setTimeout(() => toast.classList.remove('show'), 2000);
     }
 }
 
-// Save values to cookies
 function saveValues() {
     const fields = [
         { id: 'edit-name', key: 'name_value' },
@@ -147,10 +176,7 @@ function saveValues() {
 
     fields.forEach(({ id, key }) => {
         const element = document.getElementById(id);
-        if (element) {
-            const value = element.value || strings[key] || '';
-            setCookie(key, value);
-        }
+        if (element) setCookie(key, element.value || strings[key] || '');
     });
 
     showToast('Änderungen gespeichert');
@@ -159,7 +185,6 @@ function saveValues() {
     updateQRCode();
 }
 
-// Open settings popup
 function openSettingsPopup() {
     const popup = document.getElementById('settings-popup');
     if (popup) {
@@ -168,31 +193,27 @@ function openSettingsPopup() {
     }
 }
 
-// Close settings popup
 function closeSettingsPopup() {
     const popup = document.getElementById('settings-popup');
-    if (popup) {
-        popup.style.display = 'none';
-    }
+    if (popup) popup.style.display = 'none';
 }
 
-// Open explanation popup
+// ================================
+// Explanation Popup
+// ================================
 function openExplanationPopup() {
     const popup = document.getElementById('explanation-popup');
-    if (popup) {
-        popup.style.display = 'block';
-    }
+    if (popup) popup.style.display = 'block';
 }
 
-// Close explanation popup
 function confirmExplanation() {
     const popup = document.getElementById('explanation-popup');
-    if (popup) {
-        popup.style.display = 'none';
-    }
+    if (popup) popup.style.display = 'none';
 }
 
-// Update QR code
+// ================================
+// QR Code Handling
+// ================================
 function updateQRCode() {
     const ticketCode = getCookie('ticket_code_value') || strings.ticket_code_value || '';
     const name = getCookie('name_value') || strings.name_value || '';
@@ -201,12 +222,11 @@ function updateQRCode() {
     const validUntil = getCookie('valid_until_date') || strings.valid_until_date || '';
 
     const qrData = `Ticket Code: ${ticketCode}\nName: ${name}\nBirthday: ${birthday}\nValid From: ${validFrom}\nValid Until: ${validUntil}`;
-
     const qrCodeContainer = document.getElementById('qr-code-container');
     if (qrCodeContainer && typeof QRCode !== 'undefined') {
         const qrSize = Math.min(qrCodeContainer.offsetWidth, qrCodeContainer.offsetHeight) || 350;
         const qrcodeElement = document.getElementById('qrcode');
-        qrcodeElement.innerHTML = ''; // Clear previous QR code
+        qrcodeElement.innerHTML = '';
         new QRCode(qrcodeElement, {
             text: qrData,
             width: qrSize,
@@ -218,110 +238,80 @@ function updateQRCode() {
     }
 }
 
-// Toggle fullscreen mode
+// ================================
+// Fullscreen Toggle
+// ================================
 function toggleFullscreen() {
-    const mainContainer = document.documentElement; // Use documentElement to request fullscreen for the entire page
-    if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-        if (mainContainer.requestFullscreen) {
-            mainContainer.requestFullscreen();
-        } else if (mainContainer.webkitRequestFullscreen) { // Safari
-            mainContainer.webkitRequestFullscreen();
-        } else if (mainContainer.mozRequestFullScreen) { // Firefox
-            mainContainer.mozRequestFullScreen();
-        } else if (mainContainer.msRequestFullscreen) { // IE/Edge
-            mainContainer.msRequestFullscreen();
-        } else {
-            showToast('Vollbildmodus wird von diesem Browser nicht unterstützt');
-        }
+    const mainContainer = document.documentElement;
+    if (!document.fullscreenElement) {
+        mainContainer.requestFullscreen?.() ||
+        mainContainer.webkitRequestFullscreen?.() ||
+        mainContainer.mozRequestFullScreen?.() ||
+        mainContainer.msRequestFullscreen?.();
     } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-        }
+        document.exitFullscreen?.() ||
+        document.webkitExitFullscreen?.() ||
+        document.mozCancelFullScreen?.() ||
+        document.msExitFullscreen?.();
     }
 }
 
-// Initialize ticket page
+// ================================
+// Ticket Initialization
+// ================================
 function initTicketPage() {
-    // Initialize default cookies and check for first load
     const isFirstLoad = initializeDefaultCookies();
     updateTextViews();
 
-    // Show explanation popup on first load
-    if (isFirstLoad) {
-        openExplanationPopup();
-    }
+    if (isFirstLoad) openExplanationPopup();
 
     // Logo animation
     const logo = document.getElementById('animated-d-ticket-logo');
     if (logo) {
-        const container = logo.parentElement; // Der logo-container
-        const maxTranslate = container ? Math.max(20, container.offsetWidth - logo.offsetWidth - 32) : 100; // 32px Puffer für Padding (16px pro Seite), mindestens 20px
-
-        logo.style.transform = 'translateX(0px)';
+        const container = logo.parentElement;
+        const maxTranslate = container ? Math.max(20, container.offsetWidth - logo.offsetWidth - 32) : 100;
         logo.animate([
             { transform: 'translateX(0px)' },
-            { transform: `translateX(${maxTranslate}px)` }, // Dynamische maximale Verschiebung
+            { transform: `translateX(${maxTranslate}px)` },
             { transform: 'translateX(0px)' }
         ], {
             duration: 3000,
             iterations: Infinity,
-            easing: 'ease-in-out' // Sanftere Animation
+            easing: 'ease-in-out'
         });
     }
 
-    // Long-press (hold) event for QR code
+    // Long press on QR code for settings
     const qrCodeContainer = document.getElementById('qr-code-container');
     let pressTimer = null;
     let isPressing = false;
-
     if (qrCodeContainer) {
         const startPress = () => {
             if (!isPressing) {
                 isPressing = true;
-                pressTimer = setTimeout(() => {
-                    openSettingsPopup();
-                }, 1000); // 1-second hold
+                pressTimer = setTimeout(openSettingsPopup, 1000);
             }
         };
-
         const endPress = () => {
-            if (isPressing) {
-                isPressing = false;
-                clearTimeout(pressTimer);
-            }
+            isPressing = false;
+            clearTimeout(pressTimer);
         };
-
-        // Mouse events
         qrCodeContainer.addEventListener('mousedown', startPress);
         qrCodeContainer.addEventListener('mouseup', endPress);
         qrCodeContainer.addEventListener('mouseleave', endPress);
-
-        // Touch events
-        qrCodeContainer.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Prevent default touch behaviors
-            startPress();
-        });
+        qrCodeContainer.addEventListener('touchstart', e => { e.preventDefault(); startPress(); });
         qrCodeContainer.addEventListener('touchend', endPress);
         qrCodeContainer.addEventListener('touchcancel', endPress);
     }
 
-    // Click event for header-title to toggle fullscreen
+    // Header click toggles fullscreen
     const headerTitle = document.querySelector('.header-title');
-    if (headerTitle) {
-        headerTitle.addEventListener('click', toggleFullscreen);
-    }
+    if (headerTitle) headerTitle.addEventListener('click', toggleFullscreen);
 
-    // Update QR code
     updateQRCode();
 }
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    initTicketPage();
-});
+// ================================
+// Start on Load
+// ================================
+document.addEventListener('DOMContentLoaded', initTicketPage);
